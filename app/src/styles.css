@@ -19,5 +19,6 @@ button {
   size-adjust: larger;
 }
 
-img {
+body {
+  background-color: white;
 }
