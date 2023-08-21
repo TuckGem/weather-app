@@ -1,65 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://unpkg.com/axios/dist/axios.min.js" id=axios></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"/>
-    <title>Document</title>
-    <style src= "/src/styles.css"></style>
-  </head>
+let now = new Date();
+let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+let day = now.getDay();
+let hour = now.getHours();
+let mins = now.getMinutes();
+let today = document.querySelector("#date");
 
-  <body>
-    <div class="container mt-4 border border-info rounded">
-      <form action="" class="row pt-3" id="form">
-        <div class="col-9">
-          <input
-            type="text"
-            id="search-input"
-            class="form-control"
-            placeholder="Type a city ..."
-          />
-          <div class="pt-4">
-            <h1 class="text-secondary" id="location">London, UK</h1>
-            <p id="date" class="text-secondary">Friday 10:47</p>
-            <p id="weather" class="text-secondary">Partly Cloudy</p>
-          </div>
-        </div>
-       
-        <div class="col-3">
-          <input
-            type="submit"
-            id="submit"
-            class="form-control bg-primary text-white"
-          />
-          <button type="submit" id="search-bar" class="location">Current Location</button>
-      </form>
-     <div />
-      <div class="row">
-        <div class="col-6" id="cloud">
-          <div>
-            <h2>
-              <i class="fa-solid fa-cloud-sun"></i>
-              <span class="temp" id="temp"> </span
-              ><sup class=""
-                ><a href="#" id="to-celcius">°C </a>|<span class="text-primary">
-                  <a href="#" id="to-fahenreit">°F</a></span
-                ></sup
-              >
-            </h2>
-          </div>
-        </div>
-        <div class="col-6">
-          <p class="text-secondary">Precipitation: 20%</p>
-          <p class="text-secondary">Humidity: 25%</p>
-          <p class="text-secondary">Wind: 11 km/h</p>
-        </div>
-      </div>
-    </div>
-    <script
-      src="https://kit.fontawesome.com/1a4d51a6f3.js"
-      crossorigin="anonymous"
-    ></script>
-    <script src="/src/index.js"></script>
-  </body>
-</html>
+today.innerHTML = `${days[day]} ${hour}:${mins}`;
+
+function search(event) {
+  event.preventDefault();
+  let searchTerm = document.querySelector("#search-input");
+  console.log(searchTerm.value);
+  searchTerm.innerHTML = `${searchTerm.value}`;
+  let location = document.querySelector("#location");
+  location.innerHTML = `${searchTerm.value}`;
+  currentPosition(searchTerm.value);
+}
+let searchInput = document.querySelector("#form");
+searchInput.addEventListener("submit", search);
+let celcius = 20;
+document.querySelector("#temp").innerHTML = celcius;
+
+function toCelciusUnit() {
+  document.querySelector("#temp").innerHTML = celcius;
+  console.log(celcius);
+}
+let temp = document.querySelector("#to-celcius");
+temp.addEventListener("click", toCelciusUnit);
+function toFahenreit() {
+  let fahenreit = celcius * (9 / 5) + 32;
+  document.querySelector("#temp").innerHTML = fahenreit;
+}
+let fahenreit = document.querySelector("#to-fahenreit");
+fahenreit.addEventListener("click", toFahenreit);
+//week 5
+let searchForm = document.querySelector("#search-bar");
+// searchForm.addEventListener("submit", locationButton);
+
+function displayWeather(response) {
+  console.log(response.data);
+  console.log(response.data.name);
+  document.querySelector("#location").innerHTML = response.data.name;
+  document.querySelector("#temp").innerHTML = Math.round(
+    response.data.main.temp
+  );
+  document.querySelector("#weather").innerHTML = response.data.weather[0].main;
+}
+
+function currentPosition(city) {
+  let apiKey = "96ad27349a64ea1dcdfbe6f4d458c085";
+  let units = "metric";
+  let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${units}&appid=${apiKey}`;
+  axios.get(url).then(displayWeather);
+}
+
+navigator.geolocation.getCurrentPosition(currentPosition);
+
+function locationButton(event) {
+  event.preventDefault();
+  navigator.geolocation.getCurrentPosition(displayLocationButton);
+}
+function displayLocationButton(position) {
+  console.log(position);
+  let apiKey = "96ad27349a64ea1dcdfbe6f4d458c085";
+  let units = "metric";
+  let lat = position.coords.latitude;
+  let lon = position.coords.longitude;
+  let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${units}&appid=${apiKey}`;
+
+  axios.get(url).then(displayWeather);
+}
+let currentLocationButton = document.querySelector("#search-bar");
+currentLocationButton.addEventListener("click", locationButton);
